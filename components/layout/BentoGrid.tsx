@@ -34,6 +34,16 @@ export function BentoGrid({
 
   const layouts: Layouts = useMemo(() => ({ lg: layout, md: layout, sm: layout }), [layout]);
 
+  // Mobile order: build a y-index map once and stable-sort by it. Avoids
+  // O(n²) layout.find() calls inside an O(n log n) sort comparator on every
+  // render.
+  const mobileOrder = useMemo(() => {
+    const yByItem = new Map(layout.map((l) => [l.i, l.y]));
+    return [...items].sort(
+      (a, b) => (yByItem.get(a.id) ?? 0) - (yByItem.get(b.id) ?? 0),
+    );
+  }, [items, layout]);
+
   function onLayoutChange(newLayout: Layout[]) {
     setLayout(newLayout);
     if (readOnly) return;
@@ -55,15 +65,9 @@ export function BentoGrid({
     <>
       {/* Mobile: vertical stack in y-order */}
       <div className="md:hidden space-y-4">
-        {[...items]
-          .sort((a, b) => {
-            const la = layout.find((l) => l.i === a.id);
-            const lb = layout.find((l) => l.i === b.id);
-            return (la?.y ?? 0) - (lb?.y ?? 0);
-          })
-          .map((it) => (
-            <div key={it.id}>{it.children}</div>
-          ))}
+        {mobileOrder.map((it) => (
+          <div key={it.id}>{it.children}</div>
+        ))}
       </div>
 
       {/* Desktop: draggable bento. Hidden until mounted to avoid SSR width=0 flash. */}

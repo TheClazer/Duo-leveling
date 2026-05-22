@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { haptic, notifyXP } from "@/lib/system-fx";
 import type { ChecklistItem, Recurring } from "@/lib/supabase/database.types";
 
 const RECUR_LABEL: Record<Recurring, string> = {
@@ -59,6 +60,9 @@ export function DailyChecklistClient({
   async function toggle(it: ChecklistItem) {
     if (readOnly) return;
     const next = !it.done;
+    // Tiny haptic on both directions; XP only on completion (don't reward un-doing).
+    haptic.tap();
+    if (next) notifyXP("habit_check_in"); // checklist items share the habit XP source for now
     setItems((cur) => cur.map((x) => (x.id === it.id ? { ...x, done: next, completed_at: next ? new Date().toISOString() : null } : x)));
     const supabase = createClient();
     await supabase

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CharacterHero } from "@/components/theme/CharacterHero";
@@ -12,6 +13,7 @@ import { Github } from "@/components/widgets/Github";
 import { SaveLater } from "@/components/widgets/SaveLater";
 import { Achievements } from "@/components/widgets/Achievements";
 import { BentoGrid, type BentoItem } from "@/components/layout/BentoGrid";
+import { WidgetSkeleton } from "@/components/ui/widget-skeleton";
 import type { LayoutItem, Profile } from "@/lib/supabase/database.types";
 
 export const dynamic = "force-dynamic";
@@ -44,16 +46,54 @@ export default async function YouPage() {
     .maybeSingle();
   const storedLayout = ((layoutRow as { layout?: LayoutItem[] } | null)?.layout ?? []) as LayoutItem[];
 
+  // Each widget wrapped in <Suspense> so it streams in independently.
+  // A slow Github sync no longer blocks the rest of the bento.
   const items: BentoItem[] = [
-    { id: "projects",  defaultLayout: DEFAULT_LAYOUT[0], children: <ActiveProjects userId={user.id} /> },
-    { id: "habits",    defaultLayout: DEFAULT_LAYOUT[1], children: <HabitsHeatmap userId={user.id} /> },
-    { id: "checklist", defaultLayout: DEFAULT_LAYOUT[2], children: <DailyChecklist userId={user.id} /> },
-    { id: "goals",     defaultLayout: DEFAULT_LAYOUT[3], children: <Goals userId={user.id} /> },
-    { id: "leetcode",  defaultLayout: DEFAULT_LAYOUT[4], children: <Leetcode userId={user.id} /> },
-    { id: "github",    defaultLayout: DEFAULT_LAYOUT[5], children: <Github userId={user.id} /> },
-    { id: "savelater",    defaultLayout: DEFAULT_LAYOUT[6], children: <SaveLater userId={user.id} /> },
-    { id: "journal",      defaultLayout: DEFAULT_LAYOUT[7], children: <Journal userId={user.id} /> },
-    { id: "achievements", defaultLayout: DEFAULT_LAYOUT[8], children: <Achievements userId={user.id} /> },
+    { id: "projects", defaultLayout: DEFAULT_LAYOUT[0], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={360} label="Loading projects" />}>
+        <ActiveProjects userId={user.id} />
+      </Suspense>
+    )},
+    { id: "habits", defaultLayout: DEFAULT_LAYOUT[1], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={360} label="Loading habits" />}>
+        <HabitsHeatmap userId={user.id} />
+      </Suspense>
+    )},
+    { id: "checklist", defaultLayout: DEFAULT_LAYOUT[2], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading checklist" />}>
+        <DailyChecklist userId={user.id} />
+      </Suspense>
+    )},
+    { id: "goals", defaultLayout: DEFAULT_LAYOUT[3], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading goals" />}>
+        <Goals userId={user.id} />
+      </Suspense>
+    )},
+    { id: "leetcode", defaultLayout: DEFAULT_LAYOUT[4], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading LeetCode" />}>
+        <Leetcode userId={user.id} />
+      </Suspense>
+    )},
+    { id: "github", defaultLayout: DEFAULT_LAYOUT[5], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading GitHub" />}>
+        <Github userId={user.id} />
+      </Suspense>
+    )},
+    { id: "savelater", defaultLayout: DEFAULT_LAYOUT[6], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={520} label="Loading save-later" />}>
+        <SaveLater userId={user.id} />
+      </Suspense>
+    )},
+    { id: "journal", defaultLayout: DEFAULT_LAYOUT[7], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={520} label="Loading journal" />}>
+        <Journal userId={user.id} />
+      </Suspense>
+    )},
+    { id: "achievements", defaultLayout: DEFAULT_LAYOUT[8], children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading achievements" />}>
+        <Achievements userId={user.id} />
+      </Suspense>
+    )},
   ];
 
   return (

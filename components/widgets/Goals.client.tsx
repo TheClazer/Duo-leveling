@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { haptic, notifyXP } from "@/lib/system-fx";
 import type { Goal, Milestone } from "@/lib/supabase/database.types";
 
 type Filter = "active" | "completed";
@@ -37,16 +38,28 @@ export function GoalsClient({
     if (readOnly) return;
     const supabase = createClient();
     const next = !m.done;
+    // Tactile feedback. XP only on completing (not on un-doing).
+    haptic.tap();
+    if (next) notifyXP("goal_milestone");
     setMilestones((cur) => cur.map((x) => (x.id === m.id ? { ...x, done: next } : x)));
     const { error } = await supabase.from("milestones").update({ done: next }).eq("id", m.id);
-    if (error) setMilestones((cur) => cur.map((x) => (x.id === m.id ? { ...x, done: !next } : x)));
+    if (error) {
+      haptic.err();
+      setMilestones((cur) => cur.map((x) => (x.id === m.id ? { ...x, done: !next } : x)));
+    }
     // recompute progress
     const others = milestones.filter((x) => x.goal_id === m.goal_id && x.id !== m.id);
     const total = others.length + 1;
     const done = others.filter((x) => x.done).length + (next ? 1 : 0);
     const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    const justCompleted = pct === 100 && next;
     setGoals((cur) => cur.map((g) => (g.id === m.goal_id ? { ...g, progress: pct, completed_at: pct === 100 ? new Date().toISOString() : null } : g)));
     await supabase.from("goals").update({ progress: pct, completed_at: pct === 100 ? new Date().toISOString() : null }).eq("id", m.goal_id);
+    // Whole-goal completion gets a bigger pulse + extra XP banner.
+    if (justCompleted) {
+      haptic.done();
+      notifyXP("goal_complete");
+    }
   }
 
   async function deleteGoal(id: string) {
@@ -296,7 +309,7 @@ function AddGoalDialog({
           {error && <p className="text-xs text-red-400">{error}</p>}
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={submitting || !title.trim()}>{submitting ? "Adding..." : "Add goal"}</Button>
+            <Button magnetic type="submit" disabled={submitting || !title.trim()}>{submitting ? "Adding..." : "Add goal"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

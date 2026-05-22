@@ -16,6 +16,7 @@ import {
   todayIso,
   weeklyHitPct,
 } from "@/lib/habits";
+import { haptic, notifyXP } from "@/lib/system-fx";
 import type { Habit, HabitEntry } from "@/lib/supabase/database.types";
 import { AddHabitDialog } from "./AddHabitDialog";
 
@@ -40,13 +41,17 @@ export function HabitsHeatmapClient({ initialHabits, initialEntries, readOnly = 
     const existing = entries.find((e) => e.habit_id === habit.id && e.date === today);
 
     if (existing) {
-      // optimistic delete
+      // optimistic delete — light haptic, no XP banner (undoing isn't a "win")
+      haptic.tap();
       setEntries((cur) => cur.filter((e) => e.id !== existing.id));
       startTransition(async () => {
         const { error } = await supabase.from("habit_entries").delete().eq("id", existing.id);
         if (error) setEntries((cur) => [...cur, existing]);
       });
     } else {
+      // Marking done — fire dopamine immediately, before network. Pure feel.
+      haptic.tap();
+      notifyXP("habit_check_in");
       const optimistic: HabitEntry = {
         id: `opt-${Math.random()}`,
         habit_id: habit.id,
@@ -62,6 +67,7 @@ export function HabitsHeatmapClient({ initialHabits, initialEntries, readOnly = 
           .select()
           .single();
         if (error || !data) {
+          haptic.err();
           setEntries((cur) => cur.filter((e) => e.id !== optimistic.id));
           return;
         }

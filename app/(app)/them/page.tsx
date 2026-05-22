@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { CharacterHero } from "@/components/theme/CharacterHero";
@@ -12,6 +13,7 @@ import { Github } from "@/components/widgets/Github";
 import { SaveLater } from "@/components/widgets/SaveLater";
 import { Achievements } from "@/components/widgets/Achievements";
 import { BentoGrid, type BentoItem } from "@/components/layout/BentoGrid";
+import { WidgetSkeleton } from "@/components/ui/widget-skeleton";
 import type { LayoutItem, Profile } from "@/lib/supabase/database.types";
 
 export const dynamic = "force-dynamic";
@@ -63,16 +65,53 @@ export default async function ThemPage() {
     .maybeSingle();
   const storedLayout = ((layoutRow as { layout?: LayoutItem[] } | null)?.layout ?? []) as LayoutItem[];
 
+  // Same Suspense streaming as /you — partner widgets stream independently.
   const items: BentoItem[] = [
-    { id: "projects",  defaultLayout: { x: 0, y: 0,  w: 2, h: 5 }, children: <ActiveProjects userId={partner.id} readOnly /> },
-    { id: "habits",    defaultLayout: { x: 2, y: 0,  w: 4, h: 5 }, children: <HabitsHeatmap userId={partner.id} readOnly /> },
-    { id: "checklist", defaultLayout: { x: 0, y: 5,  w: 3, h: 6 }, children: <DailyChecklist userId={partner.id} readOnly /> },
-    { id: "goals",     defaultLayout: { x: 3, y: 5,  w: 3, h: 6 }, children: <Goals userId={partner.id} readOnly /> },
-    { id: "leetcode",  defaultLayout: { x: 0, y: 11, w: 3, h: 6 }, children: <Leetcode userId={partner.id} readOnly /> },
-    { id: "github",    defaultLayout: { x: 3, y: 11, w: 3, h: 6 }, children: <Github userId={partner.id} readOnly /> },
-    { id: "savelater",    defaultLayout: { x: 0, y: 17, w: 3, h: 7 }, children: <SaveLater userId={partner.id} readOnly /> },
-    { id: "journal",      defaultLayout: { x: 3, y: 17, w: 3, h: 7 }, children: <Journal userId={partner.id} readOnly /> },
-    { id: "achievements", defaultLayout: { x: 0, y: 24, w: 6, h: 6 }, children: <Achievements userId={partner.id} readOnly /> },
+    { id: "projects", defaultLayout: { x: 0, y: 0,  w: 2, h: 5 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={360} label="Loading projects" />}>
+        <ActiveProjects userId={partner.id} readOnly />
+      </Suspense>
+    )},
+    { id: "habits", defaultLayout: { x: 2, y: 0,  w: 4, h: 5 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={360} label="Loading habits" />}>
+        <HabitsHeatmap userId={partner.id} readOnly />
+      </Suspense>
+    )},
+    { id: "checklist", defaultLayout: { x: 0, y: 5,  w: 3, h: 6 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading checklist" />}>
+        <DailyChecklist userId={partner.id} readOnly />
+      </Suspense>
+    )},
+    { id: "goals", defaultLayout: { x: 3, y: 5,  w: 3, h: 6 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading goals" />}>
+        <Goals userId={partner.id} readOnly />
+      </Suspense>
+    )},
+    { id: "leetcode", defaultLayout: { x: 0, y: 11, w: 3, h: 6 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading LeetCode" />}>
+        <Leetcode userId={partner.id} readOnly />
+      </Suspense>
+    )},
+    { id: "github", defaultLayout: { x: 3, y: 11, w: 3, h: 6 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading GitHub" />}>
+        <Github userId={partner.id} readOnly />
+      </Suspense>
+    )},
+    { id: "savelater", defaultLayout: { x: 0, y: 17, w: 3, h: 7 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={520} label="Loading save-later" />}>
+        <SaveLater userId={partner.id} readOnly />
+      </Suspense>
+    )},
+    { id: "journal", defaultLayout: { x: 3, y: 17, w: 3, h: 7 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={520} label="Loading journal" />}>
+        <Journal userId={partner.id} readOnly />
+      </Suspense>
+    )},
+    { id: "achievements", defaultLayout: { x: 0, y: 24, w: 6, h: 6 }, children: (
+      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading achievements" />}>
+        <Achievements userId={partner.id} readOnly />
+      </Suspense>
+    )},
   ];
 
   return (

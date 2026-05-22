@@ -91,7 +91,7 @@ export function AddHabitDialog({
           {error && <p className="text-xs text-red-400">{error}</p>}
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={submitting || !name.trim()}>{submitting ? "Adding..." : "Add habit"}</Button>
+            <Button magnetic type="submit" disabled={submitting || !name.trim()}>{submitting ? "Adding..." : "Add habit"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

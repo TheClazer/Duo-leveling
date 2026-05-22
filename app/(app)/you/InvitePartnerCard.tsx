@@ -50,7 +50,7 @@ export function InvitePartnerCard() {
           <p className="mt-1 text-sm text-fg-muted">Generate a one-time link, send it however you like. Expires in 7 days.</p>
         </div>
         {!link && (
-          <Button onClick={generate} disabled={loading} size="sm">
+          <Button magnetic onClick={generate} disabled={loading} size="sm">
             {loading ? "Generating..." : "Generate link"}
           </Button>
         )}

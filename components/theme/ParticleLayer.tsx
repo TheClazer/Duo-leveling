@@ -29,14 +29,21 @@ export function ParticleLayer() {
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = window.innerWidth + "px";
       canvas.style.height = window.innerHeight + "px";
+      // Reset transform first — otherwise scale() compounds on every resize
+      // and particles balloon to 8x size after a couple window resizes.
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
     };
     resize();
     window.addEventListener("resize", resize);
 
     const particles: Particle[] = [];
-    // Halve density vs previous version; clamp lower for perf.
-    const target = Math.min(30, Math.floor((window.innerWidth * window.innerHeight) / 60000));
+    // Density floor of 12 so mobile (375x800 viewport → would compute 5)
+    // still feels alive. Ceiling of 30 to keep GPU cost bounded.
+    const target = Math.max(
+      12,
+      Math.min(30, Math.floor((window.innerWidth * window.innerHeight) / 60000)),
+    );
 
     const isJinwoo = theme === "jinwoo";
     const isShared = theme === "shared";
@@ -84,7 +91,11 @@ export function ParticleLayer() {
     let raf = 0;
     let last = performance.now();
     let lastDraw = 0;
-    const FRAME_MS = 1000 / 30; // throttle to 30fps — half the GPU cost, visually identical for slow particles
+    // Adaptive fps: 60 on desktop (fine-pointer, hover-capable), 30 on
+    // touch/mobile + when prefers-reduced-motion or no hover. Bumping to 60
+    // is invisible to GPU on desktop but visible to the eye.
+    const hasHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const FRAME_MS = hasHover ? 1000 / 60 : 1000 / 30;
 
     const root = getComputedStyle(document.documentElement);
     const getColor = (varName: string) => {

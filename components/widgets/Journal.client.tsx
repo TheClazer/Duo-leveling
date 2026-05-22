@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { haptic, notifyXP } from "@/lib/system-fx";
 import type { Note } from "@/lib/supabase/database.types";
 
 export function JournalClient({ initialNotes, readOnly }: { initialNotes: Note[]; readOnly: boolean }) {
@@ -32,11 +33,15 @@ export function JournalClient({ initialNotes, readOnly }: { initialNotes: Note[]
       .select()
       .single();
     if (!error && data) {
+      haptic.tap();
+      notifyXP("journal_entry");
       setNotes((cur) => [data as Note, ...cur]);
       setDraft("");
       setDraftPrivate(false);
       setComposing(false);
       setPreview(false);
+    } else if (error) {
+      haptic.err();
     }
   }
 
