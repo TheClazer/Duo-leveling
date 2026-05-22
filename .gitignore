@@ -1,0 +1,43 @@
+# deps
+node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# next
+.next/
+out/
+build/
+dist/
+
+# misc
+.DS_Store
+*.pem
+.vscode/
+.idea/
+
+# env
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# pwa
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/sw.js.map
+public/workbox-*.js.map
+public/worker-*.js.map
+
+# supabase
+supabase/.branches
+supabase/.temp
+
+# claude code (local permissions / per-machine)
+.claude/

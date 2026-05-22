@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Themes (Bible §5) ---------- */
+
+:root,
+[data-theme="jinwoo"] {
+  --bg-base:          10 10 20;
+  --bg-elevated:      20 20 31;
+  --bg-card:          20 20 31;
+  --bg-card-alpha:    0.6;
+  --accent-primary:   124 58 237;   /* #7c3aed violet */
+  --accent-secondary: 234 88 12;    /* #ea580c ember  */
+  --text-primary:     244 244 245;
+  --text-muted:       161 161 170;
+  --border-glow:      124 58 237;
+  --particle-a:       234 88 12;
+  --particle-b:       124 58 237;
+  color-scheme: dark;
+}
+
+[data-theme="chahaein"] {
+  --bg-base:          253 248 242;
+  --bg-elevated:      254 243 199;
+  --bg-card:          254 243 199;
+  --bg-card-alpha:    0.5;
+  --accent-primary:   180 83 9;     /* #b45309 gold   */
+  --accent-secondary: 236 72 153;   /* #ec4899 sakura */
+  --text-primary:     28 25 23;
+  --text-muted:       120 113 108;
+  --border-glow:      180 83 9;
+  --particle-a:       236 72 153;
+  --particle-b:       253 230 138;
+  color-scheme: light;
+}
+
+/* Shared / neutral pages (Bible §5.4): deep navy with both energies */
+[data-theme="shared"] {
+  --bg-base:          12 14 28;
+  --bg-elevated:      22 24 42;
+  --bg-card:          22 24 42;
+  --bg-card-alpha:    0.55;
+  --accent-primary:   124 58 237;
+  --accent-secondary: 234 179 8;
+  --text-primary:     244 244 245;
+  --text-muted:       161 161 170;
+  --border-glow:      234 179 8;
+  --particle-a:       236 72 153;
+  --particle-b:       234 88 12;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  /* Apple-product-page smooth scrolling. */
+  scroll-behavior: smooth;
+  /* Subpixel-precise scroll so nothing micro-jitters at 60+fps displays. */
+  text-rendering: optimizeLegibility;
+}
+
+html, body {
+  background: rgb(var(--bg-base));
+  color: rgb(var(--text-primary));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* GPU-composite the page bg so scroll = transform, not repaint. */
+  transform: translateZ(0);
+}
+
+/* Glass card surface — reduced blur for perf; skipped entirely on mobile + low-power */
+.surface {
+  background: rgb(var(--bg-card) / var(--bg-card-alpha));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgb(var(--border-glow) / 0.25);
+  border-radius: 0.75rem;
+}
+
+.surface-strong {
+  background: rgb(var(--bg-elevated));
+  border: 1px solid rgb(var(--border-glow) / 0.35);
+  border-radius: 0.75rem;
+}
+
+/* Mobile + low-power: drop backdrop-blur completely. Solid bg under the cards still
+   reads fine because particles + gradients are decorative, not foreground. */
+@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+  .surface {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgb(var(--bg-elevated));
+  }
+}
+
+/* System Window glitch border (Bible §10.4) */
+.system-window {
+  background: rgb(var(--bg-elevated) / 0.92);
+  border: 1px solid rgb(var(--accent-primary) / 0.7);
+  box-shadow:
+    0 0 0 1px rgb(var(--accent-primary) / 0.25),
+    0 0 32px rgb(var(--accent-primary) / 0.35),
+    inset 0 0 32px rgb(var(--accent-primary) / 0.06);
+  backdrop-filter: blur(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* Tap targets on mobile */
+button, a { -webkit-tap-highlight-color: transparent; }
+
+/* react-grid-layout — theme placeholder + resize handle */
+.react-grid-item.react-grid-placeholder {
+  background: rgb(var(--accent-primary) / 0.18) !important;
+  border: 1px dashed rgb(var(--accent-primary) / 0.6) !important;
+  border-radius: 0.75rem !important;
+  opacity: 1 !important;
+}
+.react-grid-item > .react-resizable-handle {
+  background-image: none;
+  width: 14px;
+  height: 14px;
+}
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid rgb(var(--border-glow) / 0.55);
+  border-bottom: 2px solid rgb(var(--border-glow) / 0.55);
+  border-bottom-right-radius: 2px;
+}
+.react-grid-item.cssTransforms { transition-property: transform, box-shadow; }
+.react-grid-item.react-grid-item--dragging > div { box-shadow: 0 0 32px rgb(var(--border-glow) / 0.4); }

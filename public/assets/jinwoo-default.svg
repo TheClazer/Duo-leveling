@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#1a0b2e"/>
+      <stop offset="60%" stop-color="#0a0a14"/>
+      <stop offset="100%" stop-color="#000"/>
+    </radialGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#ea580c" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <g transform="translate(200,180)">
+    <circle r="80" fill="#14141f" stroke="url(#glow)" stroke-width="3"/>
+    <path d="M -40,-20 L 0,-60 L 40,-20 L 0,40 Z" fill="url(#glow)" opacity="0.85"/>
+    <circle r="6" cx="-20" cy="-15" fill="#7c3aed"/>
+    <circle r="6" cx="20" cy="-15" fill="#7c3aed"/>
+  </g>
+  <text x="200" y="320" font-family="ui-monospace, monospace" font-size="14" fill="#a1a1aa" text-anchor="middle" letter-spacing="6">SHADOW MONARCH</text>
+  <text x="200" y="345" font-family="ui-monospace, monospace" font-size="10" fill="#7c3aed" text-anchor="middle" letter-spacing="4">SUNG JIN-WOO</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="60%" stop-color="#fdf8f2"/>
+      <stop offset="100%" stop-color="#f3e8d2"/>
+    </radialGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#ec4899" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <g transform="translate(200,180)">
+    <circle r="80" fill="#fef3c7" stroke="url(#glow)" stroke-width="3"/>
+    <path d="M -45,-10 Q 0,-70 45,-10 Q 30,40 0,55 Q -30,40 -45,-10 Z" fill="url(#glow)" opacity="0.85"/>
+    <circle r="5" cx="-18" cy="-10" fill="#b45309"/>
+    <circle r="5" cx="18" cy="-10" fill="#b45309"/>
+  </g>
+  <text x="200" y="320" font-family="ui-monospace, monospace" font-size="14" fill="#78716c" text-anchor="middle" letter-spacing="6">S-RANK HUNTER</text>
+  <text x="200" y="345" font-family="ui-monospace, monospace" font-size="10" fill="#b45309" text-anchor="middle" letter-spacing="4">CHA HAE-IN</text>
+</svg>
