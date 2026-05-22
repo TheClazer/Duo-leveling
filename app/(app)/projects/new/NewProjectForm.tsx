@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { User, Users, Github } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { createProject } from "@/lib/projects/actions";
@@ -20,6 +21,7 @@ const CATEGORIES = [
 ];
 
 export function NewProjectForm({ hasPartner }: { hasPartner: boolean }) {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isShared, setIsShared] = useState(false);
@@ -30,6 +32,21 @@ export function NewProjectForm({ hasPartner }: { hasPartner: boolean }) {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  // Esc bails back to /projects. Skip while a dialog/palette is open or while
+  // typing inside an input/textarea — those handle their own Esc.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      // If something else (Radix Dialog, CommandPalette) opened on top, let
+      // it handle its own escape.
+      if (document.querySelector("[role='dialog'][data-state='open']")) return;
+      e.preventDefault();
+      router.push("/projects");
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router]);
 
   function onCoverPick(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];

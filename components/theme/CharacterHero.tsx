@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { RankBadge } from "./RankBadge";
+import { RankCodex } from "./RankCodex";
 import type { Profile } from "@/lib/supabase/database.types";
 
 const DEFAULT_AVATAR: Record<string, string> = {
@@ -17,6 +19,7 @@ const ROLE_BY_THEME: Record<string, string> = {
 
 export function CharacterHero({ profile, readOnly }: { profile: Profile; readOnly?: boolean }) {
   const avatar = profile.avatar_url || DEFAULT_AVATAR[profile.theme];
+  const [codexOpen, setCodexOpen] = useState(false);
 
   return (
     <section className="relative w-full overflow-hidden">
@@ -48,7 +51,23 @@ export function CharacterHero({ profile, readOnly }: { profile: Profile; readOnl
           className="flex flex-col justify-center gap-3"
         >
           <div className="flex items-start gap-4">
-            <RankBadge level={profile.level} />
+            {/* Rank badge is clickable for the user's own hero — opens the
+                Hunter Codex showing rank thresholds + progress. Read-only
+                partner view keeps it static (no need to inspect their ranks). */}
+            <button
+              type="button"
+              onClick={() => setCodexOpen(true)}
+              aria-label={`Open rank codex. You are Rank, Level ${profile.level}`}
+              className="group rounded-full outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-accent"
+              disabled={readOnly}
+            >
+              <RankBadge level={profile.level} />
+              {!readOnly && (
+                <span className="mt-1 block text-center font-mono text-[9px] uppercase tracking-widest text-fg-muted/70 opacity-0 transition-opacity group-hover:opacity-100">
+                  Codex
+                </span>
+              )}
+            </button>
             <div className="flex flex-col">
               <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-fg-muted">
                 {ROLE_BY_THEME[profile.theme]} · Lv {profile.level}
@@ -78,6 +97,15 @@ export function CharacterHero({ profile, readOnly }: { profile: Profile; readOnl
           )}
         </motion.div>
       </div>
+
+      {!readOnly && (
+        <RankCodex
+          open={codexOpen}
+          onOpenChange={setCodexOpen}
+          level={profile.level}
+          xp={profile.xp}
+        />
+      )}
     </section>
   );
 }

@@ -16,7 +16,12 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-bg-base/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      // Darker overlay + slightly stronger blur so the dialog REALLY pops
+      // against it. Before, the overlay was bg-base/70 and the dialog was
+      // bg-elevated — almost identical dark navy, so the dialog blended in.
+      "fixed inset-0 z-50 bg-black/75 backdrop-blur-md",
+      "data-[state=open]:animate-in data-[state=closed]:animate-out",
+      "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
     )}
     {...props}
@@ -33,8 +38,13 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 p-5",
-        "surface-strong rounded-lg shadow-[0_0_60px_rgb(var(--border-glow)/0.35)]",
+        "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 p-6",
+        // Solo Leveling "System Window" aesthetic: brighter background,
+        // visible accent border (not glow-faded), real layered glow. So the
+        // dialog is unmistakably *there* over the dim backdrop.
+        "rounded-lg bg-bg-elevated",
+        "border border-accent/70",
+        "shadow-[0_0_0_1px_rgb(var(--accent-primary)/0.35),0_24px_64px_-12px_rgb(var(--accent-primary)/0.55),0_0_120px_-20px_rgb(var(--accent-primary)/0.6)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -42,8 +52,13 @@ export const DialogContent = React.forwardRef<
       )}
       {...props}
     >
+      {/* Top accent rail — the "System has issued a notice" line */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent to-transparent"
+      />
       {children}
-      <DialogPrimitive.Close className="absolute right-3 top-3 rounded-md p-1 text-fg-muted hover:bg-bg-card hover:text-fg">
+      <DialogPrimitive.Close className="absolute right-3 top-3 rounded-md p-1 text-fg-muted transition-colors hover:bg-bg-card hover:text-fg">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>

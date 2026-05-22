@@ -81,8 +81,8 @@ export function HabitsHeatmapClient({ initialHabits, initialEntries, readOnly = 
   }
 
   return (
-    <div className="surface p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="surface p-5 flex h-full flex-col">
+      <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Daily Quests</p>
           <h3 className="text-lg font-semibold text-fg">Habits</h3>
@@ -95,11 +95,13 @@ export function HabitsHeatmapClient({ initialHabits, initialEntries, readOnly = 
       </div>
 
       {habits.length === 0 ? (
-        <p className="rounded-md border border-dashed border-glow/30 bg-bg-card/40 px-4 py-8 text-center text-sm text-fg-muted">
-          {readOnly ? "No habits yet." : "No habits yet. Every monarch starts with one quest."}
-        </p>
+        <div className="flex flex-1 items-center justify-center">
+          <p className="rounded-md border border-dashed border-glow/30 bg-bg-card/40 px-4 py-8 text-center text-sm text-fg-muted">
+            {readOnly ? "No habits yet." : "No habits yet. Every monarch starts with one quest."}
+          </p>
+        </div>
       ) : (
-        <div className="space-y-5">
+        <div className="flex-1 space-y-5">
           {habits.map((h) => (
             <HabitRow
               key={h.id}

@@ -95,8 +95,8 @@ export function SaveLaterClient({ initial, readOnly }: { initial: SaveLater[]; r
   }
 
   return (
-    <div className="surface p-5">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <div className="surface p-5 flex h-full flex-col">
+      <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Inventory</p>
           <h3 className="font-display text-lg font-semibold text-fg">Save Later</h3>
@@ -135,11 +135,13 @@ export function SaveLaterClient({ initial, readOnly }: { initial: SaveLater[]; r
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-md border border-dashed border-glow/25 bg-bg-card/30 px-4 py-8 text-center text-sm text-fg-muted">
-          {readOnly ? "Nothing here." : showDone ? "Nothing completed." : "Empty queue. Paste a link to start filling your inventory."}
-        </p>
+        <div className="flex flex-1 items-center justify-center">
+          <p className="rounded-md border border-dashed border-glow/25 bg-bg-card/30 px-4 py-8 text-center text-sm text-fg-muted">
+            {readOnly ? "Nothing here." : showDone ? "Nothing completed." : "Empty queue. Paste a link to start filling your inventory."}
+          </p>
+        </div>
       ) : (
-        <ul className="space-y-2">
+        <ul className="flex-1 space-y-2 overflow-y-auto">
           {filtered.map((it) => (
             <li key={it.id} className="group flex gap-3 rounded-md border border-glow/15 bg-bg-elevated/30 p-2.5 transition-all hover:border-glow/40">
               <a href={it.url} target="_blank" rel="noopener noreferrer" className="relative h-12 w-16 shrink-0 overflow-hidden rounded-md bg-bg-base/60">

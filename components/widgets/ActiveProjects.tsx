@@ -20,8 +20,8 @@ export async function ActiveProjects({ userId, readOnly = false }: { userId: str
   const items: Project[] = (projects ?? []) as Project[];
 
   return (
-    <div className="surface p-5">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="surface p-5 flex h-full flex-col">
+      <div className="mb-3 flex shrink-0 items-center justify-between">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Active quests</p>
           <h3 className="font-display text-lg font-semibold text-fg">Projects in flight</h3>
@@ -34,13 +34,15 @@ export async function ActiveProjects({ userId, readOnly = false }: { userId: str
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-md border border-dashed border-glow/30 bg-bg-card/30 px-4 py-6 text-center text-sm text-fg-muted">
-          {readOnly ? "No active projects." : (
-            <>No active projects yet. <Link href="/projects/new" className="text-accent hover:underline">Start one →</Link></>
-          )}
+        <div className="flex flex-1 items-center justify-center">
+          <div className="rounded-md border border-dashed border-glow/30 bg-bg-card/30 px-4 py-6 text-center text-sm text-fg-muted">
+            {readOnly ? "No active projects." : (
+              <>No active projects yet. <Link href="/projects/new" className="text-accent hover:underline">Start one →</Link></>
+            )}
+          </div>
         </div>
       ) : (
-        <ul className="space-y-2">
+        <ul className="flex-1 space-y-2 overflow-y-auto">
           {items.map((p) => {
             const days = p.target_date ? differenceInCalendarDays(parseISO(p.target_date), new Date()) : null;
             return (
@@ -85,7 +87,7 @@ export async function ActiveProjects({ userId, readOnly = false }: { userId: str
         </ul>
       )}
 
-      <div className="mt-3 text-right">
+      <div className="mt-3 shrink-0 text-right">
         <Link href="/projects" className="font-mono text-[10px] uppercase tracking-widest text-fg-muted hover:text-fg">
           All projects →
         </Link>

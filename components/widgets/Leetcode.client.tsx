@@ -45,8 +45,8 @@ export function LeetcodeClient({ initial, readOnly }: { initial: LeetcodeProfile
   }
 
   return (
-    <div className="surface p-5">
-      <div className="mb-3 flex items-center justify-between gap-2">
+    <div className="surface p-5 flex h-full flex-col">
+      <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Code2 className="h-4 w-4 text-accent" />
           <div>

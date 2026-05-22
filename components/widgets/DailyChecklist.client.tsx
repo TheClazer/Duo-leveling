@@ -92,8 +92,8 @@ export function DailyChecklistClient({
   }
 
   return (
-    <div className="surface p-5">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="surface p-5 flex h-full flex-col">
+      <div className="mb-3 flex shrink-0 items-center justify-between">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Today's Quests</p>
           <h3 className="text-lg font-semibold text-fg">Checklist</h3>
@@ -125,6 +125,7 @@ export function DailyChecklistClient({
         </form>
       )}
 
+      <div className="flex-1 overflow-y-auto">
       <Section title="Today" items={byDate(today)} onToggle={toggle} onRemove={remove} readOnly={readOnly} highlight />
       {(byDate(tomorrow).length > 0 || byDate(dayAfter).length > 0) && (
         <details className="mt-3 group">
@@ -135,6 +136,7 @@ export function DailyChecklistClient({
           </div>
         </details>
       )}
+      </div>
     </div>
   );
 }

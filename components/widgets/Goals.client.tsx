@@ -77,8 +77,8 @@ export function GoalsClient({
   }
 
   return (
-    <div className="surface p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="surface p-5 flex h-full flex-col">
+      <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Quests</p>
           <h3 className="text-lg font-semibold text-fg">Goals</h3>
@@ -95,11 +95,13 @@ export function GoalsClient({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-md border border-dashed border-glow/30 bg-bg-card/40 px-4 py-8 text-center text-sm text-fg-muted">
-          {filter === "active" ? (readOnly ? "No active goals." : "Set your first goal. Pick something you'd be proud of.") : "Nothing completed yet."}
-        </p>
+        <div className="flex flex-1 items-center justify-center">
+          <p className="rounded-md border border-dashed border-glow/30 bg-bg-card/40 px-4 py-8 text-center text-sm text-fg-muted">
+            {filter === "active" ? (readOnly ? "No active goals." : "Set your first goal. Pick something you'd be proud of.") : "Nothing completed yet."}
+          </p>
+        </div>
       ) : (
-        <div className="space-y-3">
+        <div className="flex-1 space-y-3 overflow-y-auto">
           {filtered.map((g) => (
             <GoalCard
               key={g.id}

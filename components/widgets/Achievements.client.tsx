@@ -33,8 +33,8 @@ export function AchievementsClient({ initial, readOnly }: { initial: Achievement
   }
 
   return (
-    <div className="surface p-5">
-      <div className="mb-3 flex items-center justify-between gap-2">
+    <div className="surface p-5 flex h-full flex-col">
+      <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Trophy Case</p>
           <h3 className="font-display text-lg font-semibold text-fg">Achievements</h3>
@@ -48,11 +48,13 @@ export function AchievementsClient({ initial, readOnly }: { initial: Achievement
       </div>
 
       {items.length === 0 && !showLocked ? (
-        <p className="rounded-md border border-dashed border-glow/25 bg-bg-card/30 px-4 py-6 text-center text-sm text-fg-muted">
-          No achievements yet. Mark a habit done, ship a goal, finish a project — they unlock as you go.
-        </p>
+        <div className="flex flex-1 items-center justify-center">
+          <p className="rounded-md border border-dashed border-glow/25 bg-bg-card/30 px-4 py-6 text-center text-sm text-fg-muted">
+            No achievements yet. Mark a habit done, ship a goal, finish a project — they unlock as you go.
+          </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div className="grid flex-1 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
           {(showLocked ? ALL_CODES : items.map((i) => i.code as AchievementCode)).map((code) => {
             const meta = ACHIEVEMENT_META[code];
             const a = items.find((i) => i.code === code);

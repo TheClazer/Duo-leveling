@@ -71,8 +71,8 @@ export function JournalClient({ initialNotes, readOnly }: { initialNotes: Note[]
   }
 
   return (
-    <div className="surface p-5">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="surface p-5 flex h-full flex-col">
+      <div className="mb-3 flex shrink-0 items-center justify-between">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-accent">Logbook</p>
           <h3 className="text-lg font-semibold text-fg">Journal</h3>
@@ -126,11 +126,13 @@ export function JournalClient({ initialNotes, readOnly }: { initialNotes: Note[]
       )}
 
       {notes.length === 0 ? (
-        <p className="rounded-md border border-dashed border-glow/30 bg-bg-card/40 px-4 py-8 text-center text-sm text-fg-muted">
-          {readOnly ? "No public entries yet." : "Your logbook is empty. Write the first entry."}
-        </p>
+        <div className="flex flex-1 items-center justify-center">
+          <p className="rounded-md border border-dashed border-glow/30 bg-bg-card/40 px-4 py-8 text-center text-sm text-fg-muted">
+            {readOnly ? "No public entries yet." : "Your logbook is empty. Write the first entry."}
+          </p>
+        </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className="flex-1 space-y-3 overflow-y-auto">
           {notes.map((n) => (
             <li key={n.id} className="rounded-lg border border-glow/15 bg-bg-elevated/30 p-3">
               <div className="mb-1.5 flex items-center justify-between text-[11px] text-fg-muted">
