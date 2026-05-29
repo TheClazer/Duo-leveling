@@ -138,6 +138,50 @@ export async function deleteProject(projectId: string) {
   redirect("/projects");
 }
 
+/** Promote a personal Goal into a tracked Project (Bible §9.14). Carries over
+ *  title / description / deadline / category and links the two. Idempotent —
+ *  re-promoting just jumps to the existing linked project. */
+export async function promoteGoalToProject(goalId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("unauthorized");
+
+  // Already promoted? Jump to the existing linked project.
+  const { data: existingRaw } = await supabase
+    .from("projects").select("id").eq("linked_goal_id", goalId).maybeSingle();
+  const existing = existingRaw as { id: string } | null;
+  if (existing) redirect(`/projects/${existing.id}`);
+
+  const { data: goalRaw } = await supabase.from("goals").select("*").eq("id", goalId).single();
+  const goal = goalRaw as
+    | { id: string; user_id: string; title: string; description: string | null; deadline: string | null; category: string | null }
+    | null;
+  if (!goal) throw new Error("goal not found");
+  if (goal.user_id !== user.id) throw new Error("not your goal");
+
+  const { data: projRaw, error } = await supabase
+    .from("projects")
+    .insert({
+      owner_id: user.id,
+      is_shared: false,
+      title: goal.title,
+      description: goal.description,
+      category: goal.category,
+      target_date: goal.deadline,
+      linked_goal_id: goal.id,
+      status: "active",
+    })
+    .select()
+    .single();
+  const project = projRaw as { id: string } | null;
+  if (error || !project) throw new Error(error?.message ?? "failed to create project");
+
+  await logActivity(project.id, "created", project.id, { title: goal.title, from_goal: goal.id });
+  revalidatePath("/projects");
+  revalidatePath("/you");
+  redirect(`/projects/${project.id}`);
+}
+
 // ---------- Tasks ----------
 
 export async function createTask(input: {

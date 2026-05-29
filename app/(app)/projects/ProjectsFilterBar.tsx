@@ -10,18 +10,22 @@ export type StatusFilter = "all" | "active" | "idea" | "paused" | "done" | "arch
 export function ProjectsFilterBar({
   owner,
   status,
+  category,
+  categories,
   hasPartner,
   partnerName,
 }: {
   owner: OwnerFilter;
   status: StatusFilter;
+  category: string;
+  categories: string[];
   hasPartner: boolean;
   partnerName: string | null;
 }) {
   const pathname = usePathname();
   const sp = useSearchParams();
 
-  function buildHref(patch: Partial<{ owner: OwnerFilter; status: StatusFilter }>) {
+  function buildHref(patch: Partial<{ owner: OwnerFilter; status: StatusFilter; category: string }>) {
     const next = new URLSearchParams(sp.toString());
     if (patch.owner !== undefined) {
       if (patch.owner === "all") next.delete("owner");
@@ -30,6 +34,10 @@ export function ProjectsFilterBar({
     if (patch.status !== undefined) {
       if (patch.status === "all") next.delete("status");
       else next.set("status", patch.status);
+    }
+    if (patch.category !== undefined) {
+      if (patch.category === "all") next.delete("category");
+      else next.set("category", patch.category);
     }
     const qs = next.toString();
     return qs ? `${pathname}?${qs}` : pathname;
@@ -64,6 +72,17 @@ export function ProjectsFilterBar({
           <Pill key={o.v} href={buildHref({ status: o.v })} active={status === o.v}>{o.label}</Pill>
         ))}
       </div>
+      {categories.length > 0 && (
+        <>
+          <div className="h-4 w-px bg-glow/30" />
+          <div className="flex flex-wrap gap-1">
+            <Pill href={buildHref({ category: "all" })} active={category === "all"}>All cats</Pill>
+            {categories.map((c) => (
+              <Pill key={c} href={buildHref({ category: c })} active={category === c}>{c}</Pill>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

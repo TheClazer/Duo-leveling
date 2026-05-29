@@ -12,11 +12,12 @@ export const dynamic = "force-dynamic";
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ owner?: string; status?: string }>;
+  searchParams: Promise<{ owner?: string; status?: string; category?: string }>;
 }) {
   const sp = await searchParams;
   const owner: OwnerFilter = (sp.owner as OwnerFilter) || "all";
   const status: StatusFilter = (sp.status as StatusFilter) || "all";
+  const category: string = sp.category || "all";
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -37,9 +38,17 @@ export default async function ProjectsPage({
   if (owner === "theirs" && partner) q = q.eq("owner_id", partner.id).eq("is_shared", false);
   if (owner === "ours") q = q.eq("is_shared", true);
   if (status !== "all") q = q.eq("status", status);
+  if (category !== "all") q = q.eq("category", category);
 
-  const { data: projectsRaw } = await q;
+  // Run the filtered list + the distinct-category lookup in parallel.
+  const [{ data: projectsRaw }, { data: catRows }] = await Promise.all([
+    q,
+    supabase.from("projects").select("category"),
+  ]);
   const list = (projectsRaw ?? []) as Project[];
+  const categories = Array.from(
+    new Set(((catRows ?? []) as { category: string | null }[]).map((r) => r.category).filter(Boolean) as string[]),
+  ).sort();
 
   const profilesById: Record<string, Profile> = {};
   if (me) profilesById[me.id] = me;
@@ -63,6 +72,8 @@ export default async function ProjectsPage({
       <ProjectsFilterBar
         owner={owner}
         status={status}
+        category={category}
+        categories={categories}
         hasPartner={!!partner}
         partnerName={partner?.display_name ?? null}
       />

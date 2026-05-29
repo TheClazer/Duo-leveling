@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, Plus, Target, CheckCircle2, Circle, Calendar, Trash2 } from "lucide-react";
+import { useState, useTransition } from "react";
+import { ChevronDown, Plus, Target, CheckCircle2, Circle, Calendar, Trash2, Rocket } from "lucide-react";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/client";
+import { promoteGoalToProject } from "@/lib/projects/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -154,6 +155,7 @@ function GoalCard({
   readOnly: boolean;
 }) {
   const days = goal.deadline ? differenceInCalendarDays(parseISO(goal.deadline), new Date()) : null;
+  const [promoting, startPromote] = useTransition();
 
   return (
     <div className="surface-strong rounded-lg p-4">
@@ -209,7 +211,16 @@ function GoalCard({
             </ul>
           )}
           {!readOnly && (
-            <div className="flex justify-end pt-1">
+            <div className="flex items-center justify-between pt-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={promoting}
+                onClick={() => startPromote(() => promoteGoalToProject(goal.id))}
+                className="text-fg-muted hover:text-accent"
+              >
+                <Rocket className="mr-1 h-3.5 w-3.5" /> {promoting ? "Promoting..." : "Promote to project"}
+              </Button>
               <Button size="sm" variant="ghost" onClick={onDelete} className="text-fg-muted hover:text-red-400">
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
               </Button>
