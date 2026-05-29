@@ -18,11 +18,13 @@ Run in order (Supabase → SQL Editor), skipping any already applied:
 
 `0001_init` · `0002_fix_profiles_rls_recursion` · `0003_phase2_trackers` ·
 `0004_phase3_projects` · `0005_project_summary_rpc` · `0006_phase4_integrations` ·
-`0007_phase5_shared` · `0008_phase6_polish` · **`0009_fix_github_token_rls` ← NEW**
+`0007_phase5_shared` · `0008_phase6_polish` · `0009_fix_github_token_rls` ·
+**`0010_mobile_order` ← NEW**
 
-`0009` is **required**: it locks the GitHub token to its owner and serves partners a
-token-free `github_profiles_public` view (the GitHub widget now reads that view). Without
-it, the GitHub widget breaks on the partner's `/them` view. All migrations are idempotent.
+`0009` secures the GitHub token table (owner-only) — harmless even though the GitHub widget
+is currently pulled. `0010` adds the `mobile_order` column that powers the mobile long-press
+bento reorder; without it, reordering on mobile just won't persist (nothing else breaks).
+All migrations are idempotent.
 
 ## B. Storage buckets
 Create per `SETUP.md` policies: **avatars, memories, project-covers, project-resources**
@@ -79,13 +81,13 @@ filter** · **promote-goal → project**.
 (auto-sync; pulled 2026-05-29 — backend code left dormant, one-line restore) ·
 Document Vault · GitHub commit-sync.
 
-**Not yet built (optional; best done alongside live testing):**
-- Move-save-later → project resource (§7.7) — small affordance.
-- Mobile long-press bento reorder · kanban drag-between-columns (touch uses the status
-  menu instead) · "ask the system" decisions search · event `.ics` export.
+**Not yet built (optional):**
+- Kanban drag-between-columns (touch uses the status menu instead) · "ask the system"
+  decisions search · event `.ics` export.
 
 **Polish landed 2026-05-29:** mobile hover-hidden row actions made touch-visible · themed
 confirm dialogs (no native popups) · bigger tap targets · aria-labels · quick-add FAB ·
-/you stats strip · milestone celebration.
+/you stats strip · milestone celebration · move-saved-link → project · mobile long-press
+bento reorder.
 
 **Not started by choice:** deployment (this guide).

@@ -59,10 +59,11 @@ export default async function ThemPage() {
 
   const { data: layoutRow } = await supabase
     .from("dashboard_layouts")
-    .select("layout")
+    .select("layout, mobile_order")
     .eq("user_id", partner.id)
     .maybeSingle();
   const storedLayout = ((layoutRow as { layout?: LayoutItem[] } | null)?.layout ?? []) as LayoutItem[];
+  const storedMobileOrder = (layoutRow as { mobile_order?: string[] } | null)?.mobile_order ?? null;
 
   // Same Suspense streaming as /you — partner widgets stream independently.
   const items: BentoItem[] = [
@@ -113,7 +114,7 @@ export default async function ThemPage() {
       <ThemeSwap theme={partner.theme} />
       <CharacterHero profile={partner} readOnly />
       <section className="mx-auto max-w-6xl px-4 pb-12">
-        <BentoGrid items={items} initialLayout={storedLayout} readOnly />
+        <BentoGrid items={items} initialLayout={storedLayout} initialMobileOrder={storedMobileOrder} readOnly />
       </section>
     </div>
   );

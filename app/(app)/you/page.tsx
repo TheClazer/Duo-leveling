@@ -38,11 +38,12 @@ export default async function YouPage() {
   // Fetch profile + saved layout in parallel — one round-trip instead of two.
   const [{ data: profileRaw }, { data: layoutRow }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
-    supabase.from("dashboard_layouts").select("layout").eq("user_id", user.id).maybeSingle(),
+    supabase.from("dashboard_layouts").select("layout, mobile_order").eq("user_id", user.id).maybeSingle(),
   ]);
   const profile = profileRaw as Profile | null;
   if (!profile) redirect("/onboarding");
   const storedLayout = ((layoutRow as { layout?: LayoutItem[] } | null)?.layout ?? []) as LayoutItem[];
+  const storedMobileOrder = (layoutRow as { mobile_order?: string[] } | null)?.mobile_order ?? null;
 
   // Each widget wrapped in <Suspense> so it streams in independently.
   // A slow Github sync no longer blocks the rest of the bento.
@@ -106,7 +107,7 @@ export default async function YouPage() {
           </div>
         )}
 
-        <BentoGrid items={items} initialLayout={storedLayout} />
+        <BentoGrid items={items} initialLayout={storedLayout} initialMobileOrder={storedMobileOrder} />
       </section>
     </div>
   );
