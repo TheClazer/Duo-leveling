@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, CheckCircle2, Circle, Trash2, Repeat } from "lucide-react";
 import { format, addDays } from "date-fns";
+import { istDateString, istDateStringOffset } from "@/lib/date";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,9 +31,9 @@ export function DailyChecklistClient({
   const [recurring, setRecurring] = useState<Recurring>("none");
   const [submitting, setSubmitting] = useState(false);
 
-  const today = format(new Date(), "yyyy-MM-dd");
-  const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
-  const dayAfter = format(addDays(new Date(), 2), "yyyy-MM-dd");
+  const today = istDateString();
+  const tomorrow = istDateStringOffset(1);
+  const dayAfter = istDateStringOffset(2);
 
   const byDate = (d: string) => items.filter((i) => i.date === d);
 
@@ -65,10 +66,15 @@ export function DailyChecklistClient({
     if (next) notifyXP("habit_check_in"); // checklist items share the habit XP source for now
     setItems((cur) => cur.map((x) => (x.id === it.id ? { ...x, done: next, completed_at: next ? new Date().toISOString() : null } : x)));
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("checklist_items")
       .update({ done: next, completed_at: next ? new Date().toISOString() : null })
       .eq("id", it.id);
+    if (error) {
+      // Write failed — revert the optimistic toggle so the UI never lies.
+      setItems((cur) => cur.map((x) => (x.id === it.id ? it : x)));
+      return;
+    }
 
     // If recurring and just completed, spawn next occurrence
     if (next && it.recurring !== "none") {
@@ -88,7 +94,8 @@ export function DailyChecklistClient({
     if (readOnly) return;
     setItems((cur) => cur.filter((x) => x.id !== it.id));
     const supabase = createClient();
-    await supabase.from("checklist_items").delete().eq("id", it.id);
+    const { error } = await supabase.from("checklist_items").delete().eq("id", it.id);
+    if (error) setItems((cur) => [...cur, it]); // revert: re-add on failure
   }
 
   return (

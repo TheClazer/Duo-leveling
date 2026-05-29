@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Responsive, WidthProvider, type Layout, type Layouts } from "react-grid-layout";
-import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
-import { GripVertical } from "lucide-react";
+import dynamic from "next/dynamic";
+import type { Layout, Layouts } from "react-grid-layout";
 import { createClient } from "@/lib/supabase/client";
 import type { LayoutItem } from "@/lib/supabase/database.types";
 import { cn } from "@/lib/utils";
 
-const ResponsiveGridLayout = WidthProvider(Responsive);
+// react-grid-layout (~40 kB) only powers the desktop drag/resize grid; mobile
+// uses a plain stack. Load it lazily so mobile + first paint don't pay for it.
+const BentoGridDesktop = dynamic(() => import("./BentoGridDesktop"), { ssr: false });
 
 export type BentoItem = {
   id: string;
@@ -73,34 +73,12 @@ export function BentoGrid({
       {/* Desktop: draggable bento. Hidden until mounted to avoid SSR width=0 flash. */}
       <div className={cn("hidden md:block transition-opacity", !mounted && "opacity-0")}>
         {mounted && (
-          <ResponsiveGridLayout
-            className="layout"
+          <BentoGridDesktop
+            items={items}
             layouts={layouts}
-            breakpoints={{ lg: 1200, md: 996, sm: 768 }}
-            cols={{ lg: 6, md: 6, sm: 4 }}
-            rowHeight={80}
-            margin={[16, 16]}
-            isDraggable={!readOnly}
-            isResizable={!readOnly}
-            draggableHandle=".bento-drag"
-            onLayoutChange={(l: Layout[]) => onLayoutChange(l)}
-            compactType="vertical"
-          >
-            {items.map((it) => (
-              <div key={it.id} className="group relative overflow-hidden">
-                {!readOnly && (
-                  <div
-                    className="bento-drag absolute right-2 top-2 z-10 flex h-7 w-7 cursor-grab items-center justify-center rounded-md bg-bg-elevated/70 text-fg-muted opacity-0 backdrop-blur transition-opacity hover:text-fg group-hover:opacity-100 active:cursor-grabbing"
-                    title="Drag to reposition"
-                    aria-label="Drag"
-                  >
-                    <GripVertical className="h-4 w-4" />
-                  </div>
-                )}
-                <div className="h-full overflow-auto">{it.children}</div>
-              </div>
-            ))}
-          </ResponsiveGridLayout>
+            readOnly={readOnly}
+            onLayoutChange={onLayoutChange}
+          />
         )}
       </div>
     </>

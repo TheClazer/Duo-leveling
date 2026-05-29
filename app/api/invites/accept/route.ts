@@ -55,6 +55,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "inviter is already paired" }, { status: 400 });
   }
 
+  // Atomically claim the invite BEFORE creating anything — a concurrent
+  // double-submit can't get past `used=false` twice, so one token = one couple.
+  const { data: claimed } = await admin
+    .from("couple_invites")
+    .update({ used: true })
+    .eq("id", invite.id)
+    .eq("used", false)
+    .select("id")
+    .maybeSingle();
+  if (!claimed) return NextResponse.json({ error: "invite already used" }, { status: 400 });
+
   const { data: coupleRaw, error: cErr } = await admin
     .from("couples")
     .insert({
@@ -66,11 +77,16 @@ export async function POST(request: Request) {
     .single();
   const couple = coupleRaw as Couple | null;
 
-  if (cErr || !couple) return NextResponse.json({ error: cErr?.message || "couple insert failed" }, { status: 500 });
+  if (cErr || !couple) {
+    // Roll the claim back so the invite stays usable after a transient failure.
+    await admin.from("couple_invites").update({ used: false }).eq("id", invite.id);
+    return NextResponse.json({ error: cErr?.message || "couple insert failed" }, { status: 500 });
+  }
 
-  await admin.from("profiles").update({ couple_id: couple.id }).eq("id", inviter.id);
-  await admin.from("profiles").update({ couple_id: couple.id }).eq("id", user.id);
-  await admin.from("couple_invites").update({ used: true }).eq("id", invite.id);
+  await Promise.all([
+    admin.from("profiles").update({ couple_id: couple.id }).eq("id", inviter.id),
+    admin.from("profiles").update({ couple_id: couple.id }).eq("id", user.id),
+  ]);
 
   return NextResponse.json({ ok: true, couple_id: couple.id });
 }

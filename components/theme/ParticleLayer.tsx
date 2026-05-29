@@ -139,9 +139,24 @@ export function ParticleLayer() {
     }
     raf = requestAnimationFrame(draw);
 
+    // Stop animating while the tab / installed PWA is backgrounded — saves
+    // battery + GPU on phones instead of drawing to an off-screen canvas.
+    const onVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      } else if (raf === 0) {
+        last = performance.now();
+        lastDraw = 0;
+        raf = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [theme]);
 

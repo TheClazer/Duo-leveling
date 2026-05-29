@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { SystemWindow } from "@/components/theme/SystemWindow";
+import { haptic, notifyXP } from "@/lib/system-fx";
 import type { ProjectMilestone } from "@/lib/supabase/database.types";
 
 export function MilestonesView({
@@ -23,6 +25,7 @@ export function MilestonesView({
 }) {
   const [milestones, setMilestones] = useState(initialMilestones);
   const [open, setOpen] = useState(false);
+  const [celebrate, setCelebrate] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   function onAdded(m: ProjectMilestone) {
@@ -32,6 +35,12 @@ export function MilestonesView({
     if (!canWrite) return;
     const next = !m.done;
     setMilestones((cur) => cur.map((x) => (x.id === m.id ? { ...x, done: next, completed_at: next ? new Date().toISOString() : null } : x)));
+    if (next) {
+      // Completing a milestone is a "wow moment" (Bible §9.7): haptic + XP banner + System Window.
+      haptic.done();
+      notifyXP("project_milestone_done");
+      setCelebrate(m.title);
+    }
     startTransition(() => toggleMilestone(m.id, next));
   }
   function onRemove(m: ProjectMilestone) {
@@ -101,6 +110,10 @@ export function MilestonesView({
       )}
 
       {canWrite && <AddMilestoneDialog open={open} onOpenChange={setOpen} projectId={projectId} onAdded={onAdded} />}
+
+      <SystemWindow open={!!celebrate} onClose={() => setCelebrate(null)} title="Milestone reached">
+        {celebrate}
+      </SystemWindow>
     </div>
   );
 }

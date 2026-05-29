@@ -8,6 +8,7 @@ import { Goals } from "@/components/widgets/Goals";
 import { DailyChecklist } from "@/components/widgets/DailyChecklist";
 import { Journal } from "@/components/widgets/Journal";
 import { ActiveProjects } from "@/components/widgets/ActiveProjects";
+import { StatsStrip, StatsStripSkeleton } from "@/components/widgets/StatsStrip";
 import { Leetcode } from "@/components/widgets/Leetcode";
 import { Github } from "@/components/widgets/Github";
 import { SaveLater } from "@/components/widgets/SaveLater";
@@ -35,15 +36,13 @@ export default async function YouPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profileRaw } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+  // Fetch profile + saved layout in parallel — one round-trip instead of two.
+  const [{ data: profileRaw }, { data: layoutRow }] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase.from("dashboard_layouts").select("layout").eq("user_id", user.id).maybeSingle(),
+  ]);
   const profile = profileRaw as Profile | null;
   if (!profile) redirect("/onboarding");
-
-  const { data: layoutRow } = await supabase
-    .from("dashboard_layouts")
-    .select("*")
-    .eq("user_id", user.id)
-    .maybeSingle();
   const storedLayout = ((layoutRow as { layout?: LayoutItem[] } | null)?.layout ?? []) as LayoutItem[];
 
   // Each widget wrapped in <Suspense> so it streams in independently.
@@ -101,8 +100,14 @@ export default async function YouPage() {
       <CharacterHero profile={profile} />
 
       <section className="mx-auto max-w-6xl px-4 pb-12">
+        <div className="mb-4 mt-2">
+          <Suspense fallback={<StatsStripSkeleton />}>
+            <StatsStrip userId={user.id} level={profile.level} xp={profile.xp} />
+          </Suspense>
+        </div>
+
         {!profile.couple_id && (
-          <div className="mt-2 mb-4">
+          <div className="mb-4">
             <InvitePartnerCard />
           </div>
         )}

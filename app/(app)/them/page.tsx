@@ -23,8 +23,8 @@ export default async function ThemPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: meRaw } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-  const me = meRaw as Profile | null;
+  const { data: meRaw } = await supabase.from("profiles").select("id, couple_id").eq("id", user.id).single();
+  const me = meRaw as Pick<Profile, "id" | "couple_id"> | null;
   if (!me) redirect("/onboarding");
 
   if (!me.couple_id) {
@@ -60,7 +60,7 @@ export default async function ThemPage() {
 
   const { data: layoutRow } = await supabase
     .from("dashboard_layouts")
-    .select("*")
+    .select("layout")
     .eq("user_id", partner.id)
     .maybeSingle();
   const storedLayout = ((layoutRow as { layout?: LayoutItem[] } | null)?.layout ?? []) as LayoutItem[];

@@ -69,58 +69,72 @@ async function countWhere(table: string, filter: Record<string, unknown>): Promi
 /** Evaluate count-based triggers for a user. Call after mutations that move counts. */
 export async function evaluateTriggers(userId: string): Promise<AchievementCode[]> {
   const unlocked: AchievementCode[] = [];
+  const admin = createServiceClient();
   const tryAdd = async (code: AchievementCode, condition: boolean, data?: Record<string, unknown>) => {
     if (!condition) return;
     if (await tryUnlock(userId, code, data)) unlocked.push(code);
   };
 
-  const [journalCount, postCount, bucketDone, decisionsCount, memoriesCount, goalsDone, projects, projectsDone, milestonesDone, updateCount, jointProjectsDone] = await Promise.all([
+  // Scope: couple-level counts must be filtered by this user's couple, and
+  // milestone/project counts by the user's own projects — otherwise every
+  // trigger would count globally (fine at one couple, wrong the moment there's
+  // more than one, and MILE_50 would wrongly count the partner's milestones).
+  const { data: profileRaw } = await admin.from("profiles").select("couple_id").eq("id", userId).single();
+  const coupleId = (profileRaw as { couple_id: string | null } | null)?.couple_id ?? null;
+
+  const { data: myProjRows } = await admin.from("projects").select("id, status").eq("owner_id", userId);
+  const myProj = (myProjRows as { id: string; status: string }[] | null) ?? [];
+  const myProjIds = myProj.map((p) => p.id);
+  const myProjDone = myProj.filter((p) => p.status === "done").length;
+
+  const [journalCount, postCount, goalsDone, updateCount, milestonesDone] = await Promise.all([
     countWhere("notes", { user_id: userId }),
     countWhere("posts", { user_id: userId }),
-    countWhere("bucket_items", { status: "done" }),
-    countWhere("decisions", {}),
-    countWhere("memories", {}),
-    countWhere("goals", { user_id: userId }).then(async () => {
-      const admin = createServiceClient();
-      const { count } = await admin.from("goals").select("id", { count: "exact", head: true }).eq("user_id", userId).not("completed_at", "is", null);
-      return count ?? 0;
-    }),
-    countWhere("projects", { owner_id: userId }),
     (async () => {
-      const admin = createServiceClient();
-      const { count } = await admin.from("projects").select("id", { count: "exact", head: true }).eq("owner_id", userId).eq("status", "done");
-      return count ?? 0;
-    })(),
-    (async () => {
-      const admin = createServiceClient();
       const { count } = await admin
-        .from("project_milestones")
-        .select("id", { count: "exact", head: true })
-        .eq("done", true);
+        .from("goals").select("id", { count: "exact", head: true })
+        .eq("user_id", userId).not("completed_at", "is", null);
       return count ?? 0;
     })(),
     countWhere("project_updates", { user_id: userId }),
     (async () => {
-      const admin = createServiceClient();
-      const { count } = await admin.from("projects").select("id", { count: "exact", head: true }).eq("is_shared", true).eq("status", "done");
+      if (myProjIds.length === 0) return 0;
+      const { count } = await admin
+        .from("project_milestones").select("id", { count: "exact", head: true })
+        .eq("done", true).in("project_id", myProjIds);
       return count ?? 0;
     })(),
   ]);
 
   await tryAdd("JOURNAL_50", journalCount >= 50, { count: journalCount });
   await tryAdd("POSTS_100", postCount >= 100, { count: postCount });
-  await tryAdd("BUCKET_5", bucketDone >= 5);
-  await tryAdd("DECISIONS_50", decisionsCount >= 50);
-  await tryAdd("MEMORIES_100", memoriesCount >= 100);
   await tryAdd("GOAL_FIRST", goalsDone >= 1);
   await tryAdd("GOAL_10", goalsDone >= 10);
-  await tryAdd("PROJ_FIRST", projects >= 1);
-  await tryAdd("PROJ_DONE_1", projectsDone >= 1);
-  await tryAdd("PROJ_DONE_10", projectsDone >= 10);
+  await tryAdd("PROJ_FIRST", myProj.length >= 1);
+  await tryAdd("PROJ_DONE_1", myProjDone >= 1);
+  await tryAdd("PROJ_DONE_10", myProjDone >= 10);
   await tryAdd("MILE_50", milestonesDone >= 50);
   await tryAdd("UPDATE_100", updateCount >= 100);
-  await tryAdd("JOINT_PROJ_1", jointProjectsDone >= 1);
-  await tryAdd("JOINT_PROJ_5", jointProjectsDone >= 5);
+
+  // Couple-scoped triggers — only meaningful once paired.
+  if (coupleId) {
+    const [bucketDone, decisionsCount, memoriesCount, jointDone] = await Promise.all([
+      countWhere("bucket_items", { couple_id: coupleId, status: "done" }),
+      countWhere("decisions", { couple_id: coupleId }),
+      countWhere("memories", { couple_id: coupleId }),
+      (async () => {
+        const { count } = await admin
+          .from("projects").select("id", { count: "exact", head: true })
+          .eq("couple_id", coupleId).eq("is_shared", true).eq("status", "done");
+        return count ?? 0;
+      })(),
+    ]);
+    await tryAdd("BUCKET_5", bucketDone >= 5);
+    await tryAdd("DECISIONS_50", decisionsCount >= 50);
+    await tryAdd("MEMORIES_100", memoriesCount >= 100);
+    await tryAdd("JOINT_PROJ_1", jointDone >= 1);
+    await tryAdd("JOINT_PROJ_5", jointDone >= 5);
+  }
 
   // award XP for each unlocked achievement
   for (const _ of unlocked) await grantXP(userId, "achievement");

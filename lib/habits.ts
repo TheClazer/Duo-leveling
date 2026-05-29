@@ -1,4 +1,5 @@
 import { addDays, differenceInCalendarDays, format, parseISO, startOfWeek, subDays } from "date-fns";
+import { istDateString } from "@/lib/date";
 
 export const HABIT_COLORS = [
   { key: "violet",  bg: "bg-violet-500",  ring: "ring-violet-400/60",  rgb: "124 58 237"  },
@@ -16,7 +17,7 @@ export function colorMeta(key: string) {
 }
 
 export function todayIso(): string {
-  return format(new Date(), "yyyy-MM-dd");
+  return istDateString();
 }
 
 /** Returns a 53-column × 7-row grid of dates ending today. */

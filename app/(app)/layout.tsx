@@ -4,6 +4,7 @@ import { ThemeProvider, type ThemeKey } from "@/components/theme/ThemeProvider";
 import { ParticleLayer } from "@/components/theme/ParticleLayer";
 import { XPBanner } from "@/components/theme/XPBanner";
 import { CommandPalette } from "@/components/system/CommandPalette";
+import { QuickAdd } from "@/components/system/QuickAdd";
 import { TopNav } from "@/components/layout/TopNav";
 import { BottomNav } from "@/components/layout/BottomNav";
 import type { Profile } from "@/lib/supabase/database.types";
@@ -30,6 +31,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="relative z-10 flex min-h-screen flex-col">
         <TopNav />
         <main className="flex-1 pb-24 md:pb-8">{children}</main>
+        <QuickAdd />
         <BottomNav />
       </div>
     </ThemeProvider>
