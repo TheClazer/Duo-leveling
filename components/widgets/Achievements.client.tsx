@@ -14,6 +14,7 @@ export function AchievementsClient({ initial, readOnly }: { initial: Achievement
   const [items, setItems] = useState(initial);
   const [, startTransition] = useTransition();
   const [showLocked, setShowLocked] = useState(false);
+  const [pinNote, setPinNote] = useState(false);
 
   const unlockedCodes = new Set(items.map((i) => i.code));
   const pinnedCount = items.filter((i) => i.pinned).length;
@@ -22,7 +23,8 @@ export function AchievementsClient({ initial, readOnly }: { initial: Achievement
     if (readOnly) return;
     const next = !a.pinned;
     if (next && pinnedCount >= 3) {
-      alert("Pin up to 3. Unpin another first.");
+      setPinNote(true);
+      setTimeout(() => setPinNote(false), 2500);
       return;
     }
     setItems((cur) => cur.map((x) => (x.id === a.id ? { ...x, pinned: next } : x)).sort((a, b) => Number(b.pinned) - Number(a.pinned)));
@@ -46,6 +48,12 @@ export function AchievementsClient({ initial, readOnly }: { initial: Achievement
           {showLocked ? "Unlocked only" : `Show all (${ALL_CODES.length})`}
         </button>
       </div>
+
+      {pinNote && (
+        <p className="mb-2 rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-[11px] text-accent">
+          You can pin up to 3 — unpin one first.
+        </p>
+      )}
 
       {items.length === 0 && !showLocked ? (
         <div className="flex flex-1 items-center justify-center">
@@ -76,7 +84,7 @@ export function AchievementsClient({ initial, readOnly }: { initial: Achievement
                   </div>
                   {unlocked && !readOnly && (
                     <button onClick={() => togglePin(a)} className="rounded p-1 text-fg-muted hover:text-accent" aria-label={a.pinned ? "Unpin" : "Pin"}>
-                      {a.pinned ? <Pin className="h-3.5 w-3.5 text-accent" /> : <PinOff className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100" />}
+                      {a.pinned ? <Pin className="h-3.5 w-3.5 text-accent" /> : <PinOff className="h-3.5 w-3.5 opacity-60 md:opacity-0 md:group-hover:opacity-100" />}
                     </button>
                   )}
                 </div>

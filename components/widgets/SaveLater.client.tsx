@@ -161,22 +161,22 @@ export function SaveLaterClient({ initial, readOnly }: { initial: SaveLater[]; r
                 <div className="mt-0.5 truncate text-[11px] text-fg-muted">{hostname(it.url)} · {it.bucket}</div>
               </a>
               {!readOnly && (
-                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
                   {it.status === "pending" ? (
                     <>
-                      <button onClick={() => setStatus(it, "done")} title="Done" className="rounded p-1 text-fg-muted hover:text-emerald-400">
+                      <button onClick={() => setStatus(it, "done")} title="Done" aria-label="Mark done" className="rounded p-1 text-fg-muted hover:text-emerald-400">
                         <CheckCircle2 className="h-4 w-4" />
                       </button>
-                      <button onClick={() => setStatus(it, "archived")} title="Archive" className="rounded p-1 text-fg-muted hover:text-fg">
+                      <button onClick={() => setStatus(it, "archived")} title="Archive" aria-label="Archive" className="rounded p-1 text-fg-muted hover:text-fg">
                         <Archive className="h-4 w-4" />
                       </button>
                     </>
                   ) : (
-                    <button onClick={() => setStatus(it, "pending")} title="Restore" className="rounded p-1 text-fg-muted hover:text-fg">
+                    <button onClick={() => setStatus(it, "pending")} title="Restore" aria-label="Restore" className="rounded p-1 text-fg-muted hover:text-fg">
                       <RotateCcw className="h-4 w-4" />
                     </button>
                   )}
-                  <button onClick={() => remove(it)} title="Delete" className="rounded p-1 text-fg-muted hover:text-red-400">
+                  <button onClick={() => remove(it)} title="Delete" aria-label="Delete" className="rounded p-1 text-fg-muted hover:text-red-400">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>

@@ -7,7 +7,6 @@ export const XP_SOURCES = {
   journal_entry:        10,
   post:                  2,
   achievement:          50,
-  question_answered:     5,   // unused in v1 (QOTD skipped)
   project_task_done:    10,
   project_milestone_done: 50,
   project_complete:    200,

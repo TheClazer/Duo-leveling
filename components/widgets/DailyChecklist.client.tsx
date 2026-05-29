@@ -170,7 +170,7 @@ function Section({
         {items.length > 0 && <span className="text-[10px] text-fg-muted">{items.filter((i) => i.done).length}/{items.length}</span>}
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-fg-muted">Empty.</p>
+        <p className="text-xs text-fg-muted">Nothing here yet.</p>
       ) : (
         <ul className="space-y-1">
           {items.map((it) => (
@@ -195,7 +195,7 @@ function Section({
                 </span>
               )}
               {!readOnly && (
-                <button onClick={() => onRemove(it)} className="opacity-0 transition-opacity group-hover:opacity-100" aria-label="Delete">
+                <button onClick={() => onRemove(it)} className="opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100" aria-label="Delete">
                   <Trash2 className="h-3.5 w-3.5 text-fg-muted hover:text-red-400" />
                 </button>
               )}

@@ -46,7 +46,6 @@ export function xpSourceLabel(source: XPSource): string {
     case "journal_entry":          return "Log written";
     case "post":                   return "Posted";
     case "achievement":            return "Achievement";
-    case "question_answered":      return "Answered";
     case "project_task_done":      return "Task done";
     case "project_milestone_done": return "Project milestone";
     case "project_complete":       return "Project complete";

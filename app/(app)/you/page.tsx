@@ -10,7 +10,6 @@ import { Journal } from "@/components/widgets/Journal";
 import { ActiveProjects } from "@/components/widgets/ActiveProjects";
 import { StatsStrip, StatsStripSkeleton } from "@/components/widgets/StatsStrip";
 import { Leetcode } from "@/components/widgets/Leetcode";
-import { Github } from "@/components/widgets/Github";
 import { SaveLater } from "@/components/widgets/SaveLater";
 import { Achievements } from "@/components/widgets/Achievements";
 import { BentoGrid, type BentoItem } from "@/components/layout/BentoGrid";
@@ -25,7 +24,7 @@ const DEFAULT_LAYOUT: BentoItem["defaultLayout"][] = [
   { x: 0, y: 5,  w: 3, h: 6, minW: 2, minH: 4 },   // checklist
   { x: 3, y: 5,  w: 3, h: 6, minW: 2, minH: 4 },   // goals
   { x: 0, y: 11, w: 3, h: 6, minW: 2, minH: 4 },   // leetcode
-  { x: 3, y: 11, w: 3, h: 6, minW: 2, minH: 4 },   // github
+  { x: 3, y: 11, w: 3, h: 6, minW: 2, minH: 4 },   // (unused — GitHub widget removed)
   { x: 0, y: 17, w: 3, h: 7, minW: 2, minH: 4 },   // save later
   { x: 3, y: 17, w: 3, h: 7, minW: 2, minH: 4 },   // journal
   { x: 0, y: 24, w: 6, h: 6, minW: 3, minH: 4 },   // achievements
@@ -71,11 +70,6 @@ export default async function YouPage() {
     { id: "leetcode", defaultLayout: DEFAULT_LAYOUT[4], children: (
       <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading LeetCode" />}>
         <Leetcode userId={user.id} />
-      </Suspense>
-    )},
-    { id: "github", defaultLayout: DEFAULT_LAYOUT[5], children: (
-      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading GitHub" />}>
-        <Github userId={user.id} />
       </Suspense>
     )},
     { id: "savelater", defaultLayout: DEFAULT_LAYOUT[6], children: (

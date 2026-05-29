@@ -8,6 +8,7 @@ import { format, parseISO } from "date-fns";
 import { Eye, EyeOff, Plus, Pencil, Save, Trash2, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { haptic, notifyXP } from "@/lib/system-fx";
@@ -64,7 +65,6 @@ export function JournalClient({ initialNotes, readOnly }: { initialNotes: Note[]
 
   async function remove(n: Note) {
     if (readOnly) return;
-    if (!confirm("Delete this entry?")) return;
     setNotes((cur) => cur.filter((x) => x.id !== n.id));
     const supabase = createClient();
     await supabase.from("notes").delete().eq("id", n.id);
@@ -145,15 +145,15 @@ export function JournalClient({ initialNotes, readOnly }: { initialNotes: Note[]
                   )}
                   {!readOnly && (
                     <>
-                      <button onClick={() => togglePrivate(n)} className="hover:text-fg" title={n.is_private ? "Make shared" : "Make private"}>
+                      <button onClick={() => togglePrivate(n)} aria-label={n.is_private ? "Make shared" : "Make private"} className="hover:text-fg" title={n.is_private ? "Make shared" : "Make private"}>
                         {n.is_private ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                       </button>
-                      <button onClick={() => { setEditingId(n.id); setEditContent(n.content); }} className="hover:text-fg" title="Edit">
+                      <button onClick={() => { setEditingId(n.id); setEditContent(n.content); }} aria-label="Edit entry" className="hover:text-fg" title="Edit">
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
-                      <button onClick={() => remove(n)} className="hover:text-red-400" title="Delete">
+                      <ConfirmButton onConfirm={() => remove(n)} title="Delete this entry?" ariaLabel="Delete entry" className="hover:text-red-400">
                         <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </ConfirmButton>
                     </>
                   )}
                 </div>

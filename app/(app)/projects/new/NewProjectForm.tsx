@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { User, Users, Github } from "lucide-react";
+import { User, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { createProject } from "@/lib/projects/actions";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ export function NewProjectForm({ hasPartner }: { hasPartner: boolean }) {
   const [isShared, setIsShared] = useState(false);
   const [category, setCategory] = useState<string>("");
   const [targetDate, setTargetDate] = useState("");
-  const [githubRepo, setGithubRepo] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +77,6 @@ export function NewProjectForm({ hasPartner }: { hasPartner: boolean }) {
           category: category || undefined,
           target_date: targetDate || null,
           cover_image_url,
-          github_repo: githubRepo || null,
         });
         // redirect handled by server action
       } catch (e: unknown) {
@@ -148,15 +146,6 @@ export function NewProjectForm({ hasPartner }: { hasPartner: boolean }) {
           <Label htmlFor="pdate">Target date</Label>
           <Input id="pdate" type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} className="mt-1.5" />
         </div>
-      </div>
-
-      <div>
-        <Label htmlFor="prepo">GitHub repo (optional)</Label>
-        <div className="mt-1.5 flex items-center gap-2">
-          <Github className="h-4 w-4 text-fg-muted" />
-          <Input id="prepo" value={githubRepo} onChange={(e) => setGithubRepo(e.target.value)} placeholder="owner/repo or full URL" />
-        </div>
-        <p className="mt-1 text-[11px] text-fg-muted">Commits will sync to the Activity tab in Phase 4.</p>
       </div>
 
       <div>

@@ -92,7 +92,7 @@ function Pill({ href, active, children }: { href: string; active: boolean; child
     <Link
       href={href}
       className={cn(
-        "rounded-md px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider transition-colors",
+        "rounded-md px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-colors",
         active ? "bg-accent text-bg-base" : "text-fg-muted hover:bg-bg-card hover:text-fg",
       )}
     >

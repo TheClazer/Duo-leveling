@@ -5,6 +5,7 @@ import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { Plus, CheckCircle2, Circle, Trash2, Flag } from "lucide-react";
 import { createMilestone, deleteMilestone, toggleMilestone } from "@/lib/projects/actions";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,7 +46,6 @@ export function MilestonesView({
   }
   function onRemove(m: ProjectMilestone) {
     if (!canWrite) return;
-    if (!confirm("Delete this milestone?")) return;
     setMilestones((cur) => cur.filter((x) => x.id !== m.id));
     startTransition(() => deleteMilestone(m.id));
   }
@@ -97,9 +97,9 @@ export function MilestonesView({
                     )}
                   </div>
                   {canWrite && (
-                    <button onClick={() => onRemove(m)} className="opacity-0 group-hover:opacity-100 text-fg-muted hover:text-red-400">
+                    <ConfirmButton onConfirm={() => onRemove(m)} title="Delete this milestone?" ariaLabel="Delete milestone" className="opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 text-fg-muted hover:text-red-400">
                       <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    </ConfirmButton>
                   )}
                 </div>
                 {m.description && <p className="mt-2 whitespace-pre-wrap text-sm text-fg-muted">{m.description}</p>}

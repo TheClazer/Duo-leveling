@@ -6,6 +6,7 @@ import { differenceInCalendarDays, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/client";
 import { promoteGoalToProject } from "@/lib/projects/actions";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -65,7 +66,6 @@ export function GoalsClient({
 
   async function deleteGoal(id: string) {
     if (readOnly) return;
-    if (!confirm("Delete this goal and all its milestones?")) return;
     const supabase = createClient();
     setGoals((cur) => cur.filter((g) => g.id !== id));
     setMilestones((cur) => cur.filter((m) => m.goal_id !== id));
@@ -221,9 +221,9 @@ function GoalCard({
               >
                 <Rocket className="mr-1 h-3.5 w-3.5" /> {promoting ? "Promoting..." : "Promote to project"}
               </Button>
-              <Button size="sm" variant="ghost" onClick={onDelete} className="text-fg-muted hover:text-red-400">
+              <ConfirmButton onConfirm={onDelete} title="Delete this goal?" body="This removes the goal and all its milestones." ariaLabel="Delete goal" className="inline-flex items-center rounded-md px-2 py-1.5 text-sm text-fg-muted transition-colors hover:text-red-400">
                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-              </Button>
+              </ConfirmButton>
             </div>
           )}
         </div>

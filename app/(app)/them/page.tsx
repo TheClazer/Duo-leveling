@@ -9,7 +9,6 @@ import { DailyChecklist } from "@/components/widgets/DailyChecklist";
 import { Journal } from "@/components/widgets/Journal";
 import { ActiveProjects } from "@/components/widgets/ActiveProjects";
 import { Leetcode } from "@/components/widgets/Leetcode";
-import { Github } from "@/components/widgets/Github";
 import { SaveLater } from "@/components/widgets/SaveLater";
 import { Achievements } from "@/components/widgets/Achievements";
 import { BentoGrid, type BentoItem } from "@/components/layout/BentoGrid";
@@ -90,11 +89,6 @@ export default async function ThemPage() {
     { id: "leetcode", defaultLayout: { x: 0, y: 11, w: 3, h: 6 }, children: (
       <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading LeetCode" />}>
         <Leetcode userId={partner.id} readOnly />
-      </Suspense>
-    )},
-    { id: "github", defaultLayout: { x: 3, y: 11, w: 3, h: 6 }, children: (
-      <Suspense fallback={<WidgetSkeleton minHeight={440} label="Loading GitHub" />}>
-        <Github userId={partner.id} readOnly />
       </Suspense>
     )},
     { id: "savelater", defaultLayout: { x: 0, y: 17, w: 3, h: 7 }, children: (
