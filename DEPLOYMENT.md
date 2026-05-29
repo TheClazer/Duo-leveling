@@ -75,13 +75,17 @@ Plus the latest fixes branch: SSRF / timezone / optimistic-revert / RLS / achiev
 quick-add **FAB** · `/you` **stats strip** · **milestone celebration** · projects **category
 filter** · **promote-goal → project**.
 
-**Intentionally cut for v1:** Steps / Google Fit · Question of the Day.
+**Intentionally cut for v1:** Steps / Google Fit · Question of the Day · GitHub widget
+(auto-sync; pulled 2026-05-29 — backend code left dormant, one-line restore) ·
+Document Vault · GitHub commit-sync.
 
-**Wanted but not yet built (best done alongside live testing):**
-- **Document Vault** (§7.9) — `documents` table exists, no widget yet.
-- **GitHub commit-sync cron** (§9.13) — auto-log repo commits into a project's Activity.
-- Move-save-later → project resource (§7.7) — small.
-- Kanban drag-between-columns · mobile long-press reorder · "ask the system" decisions
-  search · event `.ics` export.
+**Not yet built (optional; best done alongside live testing):**
+- Move-save-later → project resource (§7.7) — small affordance.
+- Mobile long-press bento reorder · kanban drag-between-columns (touch uses the status
+  menu instead) · "ask the system" decisions search · event `.ics` export.
+
+**Polish landed 2026-05-29:** mobile hover-hidden row actions made touch-visible · themed
+confirm dialogs (no native popups) · bigger tap targets · aria-labels · quick-add FAB ·
+/you stats strip · milestone celebration.
 
 **Not started by choice:** deployment (this guide).
